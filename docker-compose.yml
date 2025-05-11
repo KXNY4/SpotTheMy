@@ -1,0 +1,35 @@
+services:
+  django:
+    build:
+      context: .
+      dockerfile: SpotTheMy/python.Dockerfile
+    command: python /app/SpotTheMy/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+
+  java:
+    build:
+      context: .
+      dockerfile: javaSpotTheMy/java.Dockerfile  
+    container_name: java-app
+    ports:
+      - "8080:8080"  
+
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
