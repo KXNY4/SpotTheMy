@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 
 class Album(models.Model):
@@ -23,6 +24,7 @@ class Track(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     file = models.FileField(upload_to="tracks/")
     album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="tracks")
+    liked_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="liked_tracks", blank=True)
 
     def __str__(self):
         return self.title
