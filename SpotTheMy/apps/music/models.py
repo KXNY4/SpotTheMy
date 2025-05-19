@@ -1,4 +1,5 @@
-from enum import unique
+from dataclasses import fields
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -58,5 +59,15 @@ class Playlist(models.Model):
     def __str__(self):
         return self.name
 
+
+class ListeningHistory(models.Model):
+    user = models.ForeignKey(get_user_model(), models.CASCADE, db_index=True)
+    track = models.ForeignObject('Track', on_delete=CASCADE, db_index=True)
+    listened_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.index(fields=['user', '-listened_at']),
+        ]
 
 
