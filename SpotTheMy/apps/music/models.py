@@ -1,6 +1,6 @@
+from enum import unique
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.conf import settings
 
 
 class Album(models.Model):
@@ -15,6 +15,25 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
+class TrackReaction(models.Model):
+    LIKE = 'like'
+    DISLIKE = 'dislike'
+    REACTION_CHOICES = [
+        (LIKE, 'Like'),
+        (DISLIKE, 'Dislike'),
+    ]
+
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    track = models.ForeignKey('Track', on_delete=models.CASCADE, related_name='reactions')
+    reaction = models.CharField(max_length=7, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'track')
+
+    def __str__(self):
+        return f"{self.user} {self.reaction} {self.track}"
+
 
 class Track(models.Model):
     title = models.CharField(max_length=255)
@@ -24,7 +43,6 @@ class Track(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     file = models.FileField(upload_to="tracks/")
     album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="tracks")
-    liked_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="liked_tracks", blank=True)
 
     def __str__(self):
         return self.title

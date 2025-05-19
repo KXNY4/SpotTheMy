@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Album, Track, Playlist
+from .models import Album, Track, Playlist, TrackReaction
 from .serializers import AlbumSerializer, TrackSerializer, PlaylistSerializer
 
 
@@ -31,18 +31,31 @@ class TrackViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
         track = self.get_object()
-        track.liked_by.add(request.user)
+        TrackReaction.objects.update_or_create(
+            user=request.user,
+            track=track,
+            defaults={'reaction': TrackReaction.LIKE}
+        )
         return Response({'status': 'liked'}, status=status.HTTP_200_OK)
-        
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def unlike(self, request, pk=None):
+    def dislike(self, request, pk=None):
         track = self.get_object()
-        track.liked_by.remove(request.user)
-        return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
+        TrackReaction.objects.update_or_create(
+            user=request.user,
+            track=track,
+            defaults={'reaction': TrackReaction.DISLIKE}
+        )
+        return Response({'status': 'disliked'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def remove_reaction(self, request, pk=None):
+        track = self.get_object()
+        TrackReaction.objects.filter(user=request.user, track=track).delete()
+        return Response({'status': 'reaction removed'}, status=status.HTTP_200_OK)
+
+
 
 class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
-
-
-
