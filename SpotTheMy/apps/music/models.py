@@ -1,5 +1,3 @@
-from dataclasses import fields
-from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -45,6 +43,9 @@ class Track(models.Model):
     file = models.FileField(upload_to="tracks/")
     album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="tracks")
 
+    class Meta:
+        app_label = 'music'
+
     def __str__(self):
         return self.title
 
@@ -59,15 +60,15 @@ class Playlist(models.Model):
     def __str__(self):
         return self.name
 
-
 class ListeningHistory(models.Model):
-    user = models.ForeignKey(get_user_model(), models.CASCADE, db_index=True)
-    track = models.ForeignObject('Track', on_delete=CASCADE, db_index=True)
+    user = models.ForeignKey(get_user_model(), models.CASCADE, db_index=True, related_name='listening_history')
+    track = models.ForeignKey('music.Track', on_delete=models.CASCADE, db_index=True)
     listened_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         indexes = [
-            models.index(fields=['user', '-listened_at']),
+            models.Index(fields=['user', '-listened_at']),
         ]
+
 
 

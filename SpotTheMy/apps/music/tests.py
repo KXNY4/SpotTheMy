@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from SpotTheMy.apps.recommendations.engine import reccommend_for_user
+from recommendations.engine import recommend_for_user
 
 
 class RecommendationsTests(TestCase):

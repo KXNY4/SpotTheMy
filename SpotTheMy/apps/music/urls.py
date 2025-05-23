@@ -1,5 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
+from .api import user_recommendations
 from .views import AlbumViewSet, TrackViewSet, PlaylistViewSet
 
 
@@ -10,7 +12,8 @@ router.register(r'playlists', PlaylistViewSet)
 
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('recommendations/', user_recommendations, name='user-recommendations')
 ]
 
 
